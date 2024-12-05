@@ -1,14 +1,49 @@
-.square {
-  width: 30px;
-  height: 30px;
-  margin: 1px;
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.game-status {
+  margin-bottom: 20px;
   font-size: 20px;
-  text-align: center;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  cursor: pointer;
+  font-weight: bold;
+}
+
+.game-board {
+  display: inline-block;
+  border: 2px solid #333;
 }
 
 .board-row {
   display: flex;
+}
+
+.square {
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.square:hover {
+  background-color: #f0f0f0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  background-color: #e0e0e0;
 }
