@@ -13,7 +13,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://yourusername.github.io/five-in-a-row",
+  "homepage": "https://zxl20220130414.github.io/wuziqi",
   "eslintConfig": {
     "extends": [
       "react-app",
