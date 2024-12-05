@@ -1,126 +1,79 @@
 import React, { useState } from 'react';
-import './App.css';
 
-// 定义棋盘大小和初始棋盘状态
 const boardSize = 15;
-const initialBoard = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
 
-// 单个棋盘格子组件
-function Square({ value, onClick }) {
-  return (
-    <button className="square" onClick={onClick}>
-      {value}
-    </button>
-  );
-}
+const FiveInARow = () => {
+  const [squares, setSquares] = useState(Array(boardSize).fill(null).map(() => Array(boardSize).fill(null)));
+  const [isNext, setIsNext] = useState(true);
+  const winner = calculateWinner(squares);
 
-// 棋盘组件
-function Board({ board, onClick }) {
-  return (
-    <div className="board">
-      {board.map((row, rowIndex) => (
-        <div key={rowIndex} className="board-row">
-          {row.map((_, colIndex) => (
-            <Square
-              key={colIndex}
-              value={board[rowIndex][colIndex]}
-              onClick={() => onClick(rowIndex, colIndex)}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
+  const handleClick = (i, j) => {
+    if (squares[i][j] || winner) {
+      return;
+    }
+    const newSquares = squares.slice();
+    newSquares[i][j] = isNext ? 'X' : 'O';
+    setSquares(newSquares);
+    setIsNext(!isNext);
+  };
 
-// 主游戏组件
-function App() {
-  const [board, setBoard] = useState(initialBoard);
-  const [xIsNext, setXIsNext] = useState(true);
-  const [winner, setWinner] = useState(null);
+  const renderSquare = (i, j) => {
+    return (
+      <button className="square" onClick={() => handleClick(i, j)} key={`${i},${j}`}>
+        {squares[i][j]}
+      </button>
+    );
+  };
 
-  // 计算胜利者
-  function calculateWinner(board) {
-    for (let row = 0; row < boardSize; row++) {
-      for (let col = 0; col < boardSize; col++) {
-        const player = board[row][col];
-        if (!player) continue;
+  const renderBoard = () => {
+    const rows = [];
+    for (let i = 0; i < boardSize; i++) {
+      const row = [];
+      for (let j = 0; j < boardSize; j++) {
+        row.push(renderSquare(i, j));
+      }
+      rows.push(<div key={i} className="board-row">{row}</div>);
+    }
+    return <div>{rows}</div>;
+  };
 
-        // 水平检查
-        if (col <= boardSize - 5 && 
-            player === board[row][col + 1] && 
-            player === board[row][col + 2] && 
-            player === board[row][col + 3] && 
-            player === board[row][col + 4]) {
-          return player;
-        }
-
-        // 垂直检查
-        if (row <= boardSize - 5 && 
-            player === board[row + 1][col] && 
-            player === board[row + 2][col] && 
-            player === board[row + 3][col] && 
-            player === board[row + 4][col]) {
-          return player;
-        }
-
-        // 主对角线检查
-        if (row <= boardSize - 5 && col <= boardSize - 5 &&
-            player === board[row + 1][col + 1] && 
-            player === board[row + 2][col + 2] && 
-            player === board[row + 3][col + 3] && 
-            player === board[row + 4][col + 4]) {
-          return player;
-        }
-
-        // 副对角线检查
-        if (row >= 4 && col <= boardSize - 5 && 
-            player === board[row - 1][col + 1] && 
-            player === board[row - 2][col + 2] && 
-            player === board[row - 3][col + 3] && 
-            player === board[row - 4][col + 4]) {
-          return player;
+  const calculateWinner = (squares) => {
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
+        if (squares[i][j] !== null) {
+          if (checkDirection(i, j, 1, 0, squares[i][j]) ||
+              checkDirection(i, j, 0, 1, squares[i][j]) ||
+              checkDirection(i, j, 1, 1, squares[i][j]) ||
+              checkDirection(i, j, 1, -1, squares[i][j])) {
+            return squares[i][j];
+          }
         }
       }
     }
     return null;
-  }
+  };
 
-  // 处理棋盘格子点击事件
-  const handleClick = (row, col) => {
-    if (board[row][col] || winner) return;
-
-    const newBoard = board.slice();
-    newBoard[row] = [...board[row]]; // 创建新的数组以保持不变性
-    newBoard[row][col] = xIsNext ? 'X' : 'O';
-    
-    setBoard(newBoard);
-    setXIsNext(!xIsNext);
-
-    const gameWinner = calculateWinner(newBoard);
-    if (gameWinner) {
-      setWinner(gameWinner);
+  const checkDirection = (x, y, dx, dy, player) => {
+    let count = 0;
+    for (let i = 0; i < 5; i++) {
+      const nx = x + dx * i;
+      const ny = y + dy * i;
+      if (nx < 0 || ny < 0 || nx >= boardSize || ny >= boardSize || squares[nx][ny] !== player) {
+        return false;
+      }
+      count++;
     }
+    return count === 5;
   };
 
-  // 重置游戏
-  const handleReset = () => {
-    setBoard(initialBoard);
-    setWinner(null);
-    setXIsNext(true);
-  };
+  const status = winner ? `Winner: ${winner}` : `Next player: ${isNext ? 'X' : 'O'}`;
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board board={board} onClick={handleClick} />
-      </div>
-      <div className="game-info">
-        <div>{winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`}</div>
-        <button onClick={handleReset}>Reset Game</button>
-      </div>
+    <div>
+      <div>{status}</div>
+      {renderBoard()}
     </div>
   );
-}
+};
 
-export default App;
+export default FiveInARow;
